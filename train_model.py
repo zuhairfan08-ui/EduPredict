@@ -15,6 +15,7 @@ Outputs:
 from __future__ import annotations
 
 import os
+import tempfile
 import joblib
 import numpy as np
 import pandas as pd
@@ -33,7 +34,8 @@ FEATURES = [
     "stress_level",
 ]
 
-MODEL_DIR = "models"
+# ── Use /tmp on Streamlit Cloud (read-only src mount), local "models" otherwise
+MODEL_DIR = os.path.join(tempfile.gettempdir(), "edupredict_models")
 DATA_PATH = "data/students.csv"
 
 
@@ -86,9 +88,9 @@ def train_and_save() -> dict:
         "features": FEATURES,
     }
 
-    joblib.dump(reg, os.path.join(MODEL_DIR, "regressor.joblib"))
-    joblib.dump(clf, os.path.join(MODEL_DIR, "classifier.joblib"))
-    joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.joblib"))
+    joblib.dump(reg,     os.path.join(MODEL_DIR, "regressor.joblib"))
+    joblib.dump(clf,     os.path.join(MODEL_DIR, "classifier.joblib"))
+    joblib.dump(scaler,  os.path.join(MODEL_DIR, "scaler.joblib"))
     joblib.dump(metrics, os.path.join(MODEL_DIR, "metrics.joblib"))
 
     return metrics
@@ -97,5 +99,6 @@ def train_and_save() -> dict:
 if __name__ == "__main__":
     m = train_and_save()
     print("Training complete.")
+    print(f"  Models saved to: {MODEL_DIR}")
     for k, v in m.items():
         print(f"  {k}: {v}")
